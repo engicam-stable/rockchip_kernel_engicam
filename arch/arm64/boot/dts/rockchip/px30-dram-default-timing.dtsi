@@ -12,7 +12,7 @@
 		compatible = "rockchip,ddr-timing";
 		ddr2_speed_bin = <DDR2_DEFAULT>;
 		ddr3_speed_bin = <DDR3_DEFAULT>;
-		ddr4_speed_bin = <DDR4_DEFAULT>;
+		ddr4_speed_bin = <DDR4_1600L>;
 		pd_idle = <13>;
 		sr_idle = <93>;
 		sr_mc_gate_idle = <0>;

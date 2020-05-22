@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (c) 2018 Fuzhou Rockchip Electronics Co., Ltd
+ * Copyright (c) 2020 Engicam srl
  */
 
 /dts-v1/;
@@ -16,7 +16,7 @@
 
 
 / {
-	model = "Rockchip linux PX30 evb ddr3 board";
+	model = "Engicam PX30.Core evaluation board 2.0";
 	compatible = "rockchip,px30-evb-ddr3-v10-linux", "rockchip,px30";
 
 	adc-keys {
@@ -96,7 +96,6 @@
 			};
 		};
 	};
-
 
 	backlight: backlight {
 		compatible = "pwm-backlight";
@@ -233,7 +232,6 @@
 &display_subsystem {
 	status = "okay";
 };
-
 
 &lvds {
 	status = "okay";
@@ -422,13 +420,13 @@
 				};
 			};
 
-			vcc_3v0: DCDC_REG4 {
+			vcc_3v3: DCDC_REG4 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <3300000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-initial-mode = <0x2>;
-				regulator-name = "vcc_3v0";
+				regulator-name = "vcc_3v3";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <3300000>;
@@ -447,13 +445,13 @@
 				};
 			};
 
-			vcc1v8_soc: LDO_REG2 {
+			vcc_1v8: LDO_REG2 {
 				regulator-always-on;
 				regulator-boot-on;
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
 
-				regulator-name = "vcc1v8_soc";
+				regulator-name = "vcc_1v8";
 				regulator-state-mem {
 					regulator-on-in-suspend;
 					regulator-suspend-microvolt = <1800000>;
@@ -619,11 +617,12 @@
 &io_domains {
 	status = "okay";
 
-	vccio1-supply = <&vcc_3v0>;
-	vccio2-supply = <&vccio_sd>;
-	vccio3-supply = <&vcc_3v0>;
-	vccio4-supply = <&vcc3v0_pmu>;
-	vccio5-supply = <&vcc_3v0>;
+	vccio1-supply = <&vcc_3v3>;
+	vccio2-supply = <&vcc_3v3>;
+	vccio3-supply = <&vcc_3v3>;
+	vccio4-supply = <&vcc_3v3>;
+	vccio5-supply = <&vcc_3v3>;
+	vccio6-supply = <&vcc_1v8>;
 };
 
 &isp_mmu {
@@ -641,8 +640,8 @@
 &pmu_io_domains {
 	status = "okay";
 
-	pmuio1-supply = <&vcc3v0_pmu>;
-	pmuio2-supply = <&vcc3v0_pmu>;
+	pmuio1-supply = <&vcc_3v3>;
+	pmuio2-supply = <&vcc_3v3>;
 };
 
 &pwm0 {
@@ -664,7 +663,7 @@
 
 &saradc {
 	status = "okay";
-	vref-supply = <&vcc1v8_soc>;
+	vref-supply = <&vcc_1v8>;
 };
 
 &sdmmc {
@@ -675,8 +674,8 @@
 	card-detect-delay = <800>;
 	ignore-pm-notify;
 	/*cd-gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>; [> CD GPIO <]*/
-	vqmmc-supply = <&vccio_sd>;
-	vmmc-supply = <&vcc_sd>;
+	vqmmc-supply = <&vcc_3v3>;
+	vmmc-supply = <&vcc_3v3>;
 	status = "okay";
 };
 

@@ -16,7 +16,7 @@
 
 
 / {
-	model = "Engicam PX30.Core evaluation board 2.0 with dual display rgb and lvds";
+	model = "Engicam PX30.Core evaluation board 1.0 with dual display rgb and lvds";
 	compatible = "rockchip,px30-evb-ddr3-v10-linux", "rockchip,px30";
 
 	adc-keys {
@@ -65,27 +65,27 @@
 		prepare-delay-ms = <20>;
 		unprepare-delay-ms = <20>;
 		disable-delay-ms = <20>;
-		bus-format = <MEDIA_BUS_FMT_RGB888_1X7X4_SPWG>;
+		bus-format = <MEDIA_BUS_FMT_RGB666_1X7X3_SPWG>;
 
-		width-mm = <217>;
-		height-mm = <136>;
+		width-mm = <260>;
+		height-mm = <204>;
 
 		display-timings {
 			native-mode = <&timing0>;
 
 			timing0: timing0 {
-				clock-frequency = <49500000>;
-				hactive = <1024>;
+				clock-frequency = <40000000>;
+				hactive = <800>;
 				vactive = <600>;
-				hback-porch = <90>;
-				hfront-porch = <90>;
+				hback-porch = <120>;
+				hfront-porch = <120>;
 				vback-porch = <10>;
 				vfront-porch = <10>;
-				hsync-len = <90>;
-				vsync-len = <10>;
+				hsync-len = <16>;
+				vsync-len = <8>;
 				hsync-active = <0>;
 				vsync-active = <0>;
-				de-active = <0>;
+				de-active = <1>;
 				pixelclk-active = <0>;
 			};
 		};

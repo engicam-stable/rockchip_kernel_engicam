@@ -174,7 +174,6 @@ LOGO := $(notdir $(wildcard $(srctree)/logo.bmp))
 LOGO_KERNEL := $(notdir $(wildcard $(srctree)/logo_kernel.bmp))
 
 %.img: engicam/%.dtb kernel.img $(LOGO) $(LOGO_KERNEL)
-	@echo '  damiano '$*
 	$(Q)$(srctree)/scripts/mkimg --dtb $*.dtb
 
 CLEAN_DIRS += out

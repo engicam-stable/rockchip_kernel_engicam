@@ -1,0 +1,66 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2020 Engicam srl
+ */
+
+ #include <dt-bindings/clock/px30-cru.h>
+
+
+/ {
+
+  regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		vcc_3v3_sgtl: vcc_3v3_sgtl_regulator {
+			compatible = "regulator-fixed";
+			regulator-name = "3v3_sgtl";
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3300000>;
+		};
+
+		vcc_1v8_sgtl: vcc_1v8_sgtl_regulator {
+			compatible = "regulator-fixed";
+			regulator-name = "1v8_sgtl";
+			regulator-always-on;
+			regulator-boot-on;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+		};
+	};
+
+  sound {
+		compatible = "simple-audio-card";
+    simple-audio-card,name = "px30-sgtl5000";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,mclk-fs = <256>;
+
+    simple-audio-card,cpu {
+			sound-dai = <&i2s1_2ch>;
+		};
+
+		simple-audio-card,codec {
+			sound-dai = <&sgtl5000>;
+		};
+	};
+};
+
+&i2c1 {
+  status = "okay";
+
+  sgtl5000: codec@a {
+           compatible = "fsl,sgtl5000";
+           status = "okay";
+           #sound-dai-cells = <0>;
+           reg = <0x0a>;
+           clocks = <&cru SCLK_I2S1_OUT>;
+           pinctrl-0 = <&i2s1_2ch_mclk>;
+           clock-names = "mclk";
+           assigned-clock-rates = <24576000>, <24576000>;
+           VDDA-supply = <&vcc_3v3_sgtl>;
+           VDDIO-supply = <&vcc_3v3_sgtl>;
+  };
+};

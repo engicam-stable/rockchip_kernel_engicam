@@ -11,6 +11,7 @@
 #include <dt-bindings/sensor-dev.h>
 #include "px30.dtsi"
 #include "px30-linux.dtsi"
+#include "px30-core-sgtl5000.dtsi"
 
 
 
@@ -143,27 +144,6 @@
 		rockchip,uboot-low-power-voltage = <3500>;
 		rockchip,screen-on-voltage = <3600>;
 		status = "okay";
-	};
-
-	rk809-sound {
-		compatible = "simple-audio-card";
-		simple-audio-card,format = "i2s";
-		simple-audio-card,name = "rockchip,rk809-codec";
-		simple-audio-card,mclk-fs = <256>;
-		simple-audio-card,widgets =
-			"Microphone", "Mic Jack",
-			"Headphone", "Headphone Jack";
-		simple-audio-card,routing =
-			"Mic Jack", "MICBIAS1",
-			"IN1P", "Mic Jack",
-			"Headphone Jack", "HPOL",
-			"Headphone Jack", "HPOR";
-		simple-audio-card,cpu {
-			sound-dai = <&i2s1_2ch>;
-		};
-		simple-audio-card,codec {
-			sound-dai = <&rk809_codec>;
-		};
 	};
 
 	rk_headset {

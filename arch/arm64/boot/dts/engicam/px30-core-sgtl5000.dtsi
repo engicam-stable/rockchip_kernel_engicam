@@ -56,10 +56,11 @@
            status = "okay";
            #sound-dai-cells = <0>;
            reg = <0x0a>;
-           clocks = <&cru SCLK_I2S1_OUT>;
            pinctrl-0 = <&i2s1_2ch_mclk>;
+           clocks = <&cru SCLK_I2S1_OUT>;
            clock-names = "mclk";
-           assigned-clock-rates = <24576000>, <24576000>;
+           assigned-clocks = <&cru SCLK_I2S1_OUT>;
+           assigned-clock-rates = <24576000>;
            VDDA-supply = <&vcc_3v3_sgtl>;
            VDDIO-supply = <&vcc_3v3_sgtl>;
   };

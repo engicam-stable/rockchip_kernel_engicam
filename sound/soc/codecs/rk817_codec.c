@@ -290,20 +290,20 @@ static struct rk817_reg_val_typ playback_power_up_list[] = {
 
 #define RK817_CODEC_PLAYBACK_POWER_UP_LIST_LEN \
 	ARRAY_SIZE(playback_power_up_list)
-
+/*
 static struct rk817_reg_val_typ playback_power_down_list[] = {
 	{RK817_CODEC_DDAC_MUTE_MIXCTL, 0x01},
-	{RK817_CODEC_ADAC_CFG1, 0x0f},
+	{RK817_CODEC_ADAC_CFG1, 0x0f},*/
 	/* HP */
-	{RK817_CODEC_AHP_CFG0, 0xe0},
-	{RK817_CODEC_AHP_CP, 0x09},
+/*	{RK817_CODEC_AHP_CFG0, 0xe0},
+	{RK817_CODEC_AHP_CP, 0x09},*/
 	/* SPK */
-	{RK817_CODEC_ACLASSD_CFG1, 0x69},
+/*	{RK817_CODEC_ACLASSD_CFG1, 0x69},
 };
 
 #define RK817_CODEC_PLAYBACK_POWER_DOWN_LIST_LEN \
 	ARRAY_SIZE(playback_power_down_list)
-
+*/
 static struct rk817_reg_val_typ capture_power_up_list[] = {
 	{RK817_CODEC_AREF_RTCFG1, 0x40},
 	{RK817_CODEC_DDAC_SR_LMT0, 0x02},
@@ -334,7 +334,7 @@ static struct rk817_reg_val_typ capture_power_up_list[] = {
 
 #define RK817_CODEC_CAPTURE_POWER_UP_LIST_LEN \
 	ARRAY_SIZE(capture_power_up_list)
-
+/*
 static struct rk817_reg_val_typ capture_power_down_list[] = {
 	{RK817_CODEC_AADC_CFG0, 0xc8},
 	{RK817_CODEC_AMIC_CFG0, 0x70},
@@ -342,7 +342,7 @@ static struct rk817_reg_val_typ capture_power_down_list[] = {
 
 #define RK817_CODEC_CAPTURE_POWER_DOWN_LIST_LEN \
 	ARRAY_SIZE(capture_power_down_list)
-
+*/
 static int rk817_codec_power_up(struct snd_soc_codec *codec, int type)
 {
 	struct rk817_codec_priv *rk817 = snd_soc_codec_get_drvdata(codec);
@@ -392,7 +392,8 @@ static int rk817_codec_power_up(struct snd_soc_codec *codec, int type)
 
 static int rk817_codec_power_down(struct snd_soc_codec *codec, int type)
 {
-	int i;
+
+//	int i;
 
 	DBG("%s : power down %s %s %s\n", __func__,
 	    type & RK817_CODEC_PLAYBACK ? "playback" : "",
@@ -400,6 +401,7 @@ static int rk817_codec_power_down(struct snd_soc_codec *codec, int type)
 	    type & RK817_CODEC_INCALL ? "incall" : "");
 
 	/* mute output for pop noise */
+/*
 	if ((type & RK817_CODEC_PLAYBACK) ||
 	    (type & RK817_CODEC_INCALL)) {
 		snd_soc_update_bits(codec, RK817_CODEC_DDAC_MUTE_MIXCTL,
@@ -437,7 +439,7 @@ static int rk817_codec_power_down(struct snd_soc_codec *codec, int type)
 		snd_soc_write(codec, RK817_CODEC_APLL_CFG5, 0x01);
 		snd_soc_write(codec, RK817_CODEC_AREF_RTCFG1, 0x06);
 	}
-
+*/
 	return 0;
 }
 

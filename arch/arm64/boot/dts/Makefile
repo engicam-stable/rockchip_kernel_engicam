@@ -5,6 +5,7 @@ dts-dirs += arm
 dts-dirs += broadcom
 dts-dirs += cavium
 dts-dirs += exynos
+dts-dirs += engicam
 dts-dirs += freescale
 dts-dirs += hisilicon
 dts-dirs += marvell

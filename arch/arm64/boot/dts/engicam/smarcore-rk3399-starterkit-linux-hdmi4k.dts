@@ -1,0 +1,619 @@
+/*
+ * Copyright (c) 2020 Engicam srl
+ *
+ * based on:
+ * Copyright (c) 2019 Fuzhou Rockchip Electronics Co., Ltd
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This file is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This file is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/dts-v1/;
+
+#include "smarcore-rk3399.dtsi"
+#include "smarcore-rk3399-linux.dtsi"
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "Engicam Smarcore RK3399 Starterkit";
+	compatible = "engicam,smarcore-rk3399-linux", "rockchip,rk3399";
+
+	vcc_lcd: vcc-lcd {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_lcd";
+		gpio = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <20000>;
+		enable-active-high;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		vin-supply = <&vcc5v0_sys>;
+	};
+
+	vcc_backligth: vcc-backligth {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_backligth";
+		gpio = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <20000>;
+		enable-active-high;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		vin-supply = <&vcc5v0_sys>;
+	};
+
+	vccadc_ref: vccadc-ref {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc1v8_sys";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+	};
+
+	adc_keys: adc-keys {
+		compatible = "adc-keys";
+		io-channels = <&saradc 1>;
+		io-channel-names = "buttons";
+		poll-interval = <100>;
+		keyup-threshold-microvolt = <1800000>;
+
+		esc-key {
+			linux,code = <KEY_ESC>;
+			label = "esc";
+			press-threshold-microvolt = <1310000>;
+		};
+
+		menu-key {
+			linux,code = <KEY_MENU>;
+			label = "menu";
+			press-threshold-microvolt = <987000>;
+		};
+
+		vol-down-key {
+			linux,code = <KEY_VOLUMEDOWN>;
+			label = "volume down";
+			press-threshold-microvolt = <300000>;
+		};
+
+		vol-up-key {
+			linux,code = <KEY_VOLUMEUP>;
+			label = "volume up";
+			press-threshold-microvolt = <17000>;
+		};
+	};
+
+	gpio_keys: gpio-keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		autorepeat;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwrbtn>;
+
+		button@0 {
+			gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_POWER>;
+			label = "GPIO Key Power";
+			linux,input-type = <1>;
+			gpio-key,wakeup = <1>;
+			debounce-interval = <100>;
+		};
+	};
+
+	extcon_dp:  extcon_dp {
+		compatible = "linux,extcon-dp-gpio";
+		pinctrl-names = "default";
+		pinctrl-0 = <&dp_hotplug>;
+		id-gpio = <&gpio4 25 GPIO_ACTIVE_HIGH>;
+	};
+
+	panel: panel {
+		compatible = "simple-panel";
+		//compatible = "auo,b101ean01";
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_gpios>;
+		backlight = <&backlight>;
+		power-supply = <&vcc_lcd>;
+		enable-gpios = <&gpio1 2 GPIO_ACTIVE_LOW>, /* CFG1 */
+				<&gpio1 22 GPIO_ACTIVE_LOW>, /* CFG2 */
+				<&gpio1 18 GPIO_ACTIVE_LOW>, /* CFG3 */
+				<&gpio1 20 GPIO_ACTIVE_LOW>; /* CFG4 */
+		//prepare-delay-ms = <20>;
+		//enable-delay-ms = <20>;
+
+		display-timings {
+			native-mode = <&timing0>;
+
+			timing0: timing0 {
+                                clock-frequency = <60000000>;
+                                hactive = <1280>;
+                                vactive = <800>;
+                                hback-porch = <40>;
+                                hfront-porch = <40>;
+                                vback-porch = <10>;
+                                vfront-porch = <3>;
+                                hsync-len = <80>;
+                                vsync-len = <10>;
+			};
+		};
+
+		ports {
+			panel_in: endpoint {
+				remote-endpoint = <&bridge_out>;
+			};
+		};
+	};
+
+	ext_cam_clk: external-camera-clock {
+		compatible = "fixed-clock";
+		clock-frequency = <27000000>;
+		clock-output-names = "CLK_CAMERA_27MHZ";
+		#clock-cells = <0>;
+	};
+
+	/delete-node/ rt5651-sound;
+/* TBD ENGICAM
+	rt5651_sound: rt5651-sound {
+		compatible = "rockchip,multicodecs-card";
+		rockchip,card-name = "realtek,rt5651-codec";
+		rockchip,codec-hp-det;
+		rockchip,mclk-fs = <256>;
+		rockchip,cpu = <&i2s0>;
+		rockchip,codec = <&rt5651>;
+		status = "okay";
+	};
+*/
+	test_power: test-power {
+		status = "okay";
+	};
+};
+
+&backlight {
+	status = "okay";
+	power-supply = <&vcc_backligth>;
+};
+
+
+&display_subsystem {
+	status = "okay";
+};
+#ifdef TBD_ENGICAM
+&dmc {
+	status = "okay";
+	center-supply = <&vdd_center>;
+	system-status-freq = <
+		/*system status         freq(KHz)*/
+		SYS_STATUS_NORMAL       856000
+		SYS_STATUS_REBOOT       416000
+		SYS_STATUS_SUSPEND      416000
+		SYS_STATUS_VIDEO_1080P  416000
+		SYS_STATUS_VIDEO_4K     856000
+		SYS_STATUS_VIDEO_4K_10B 856000
+		SYS_STATUS_PERFORMANCE  856000
+		SYS_STATUS_BOOST        856000
+		SYS_STATUS_DUALVIEW     856000
+		SYS_STATUS_ISP          856000
+	>;
+	vop-bw-dmc-freq = <
+	/* min_bw(MB/s) max_bw(MB/s) freq(KHz) */
+		0       577      416000
+		578     99999    856000
+	>;
+	auto-min-freq = <416000>;
+	auto-freq-en = <0>;
+};
+
+&dmc_opp_table {
+	compatible = "operating-points-v2";
+
+	opp-200000000 {
+		opp-hz = /bits/ 64 <200000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-300000000 {
+		opp-hz = /bits/ 64 <300000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-400000000 {
+		opp-hz = /bits/ 64 <400000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-416000000 {
+		opp-hz = /bits/ 64 <416000000>;
+		opp-microvolt = <900000>;
+	};
+	opp-528000000 {
+		opp-hz = /bits/ 64 <528000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-600000000 {
+		opp-hz = /bits/ 64 <600000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-800000000 {
+		opp-hz = /bits/ 64 <800000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-856000000 {
+		opp-hz = /bits/ 64 <856000000>;
+		opp-microvolt = <900000>;
+	};
+	opp-928000000 {
+		opp-hz = /bits/ 64 <928000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+	opp-1056000000 {
+		opp-hz = /bits/ 64 <1056000000>;
+		opp-microvolt = <900000>;
+		status = "disabled";
+	};
+};
+#endif
+&edp {
+	status = "disabled";
+	force-hpd;
+
+	ports {
+		port@1 {
+			reg = <1>;
+
+			edp_out: endpoint {
+				remote-endpoint = <&bridge_in>;
+			};
+		};
+	};
+};
+
+//&tcphy0_dp {
+//	phy-supply = <&vccadc_ref>;
+//	status = "okay";
+//};
+
+&tcphy0 {
+	extcon = <&extcon_dp>;
+	status = "okay";
+};
+
+&cdn_dp_fb {
+	status = "disabled";
+	extcon = <&extcon_dp>;
+//	dp_vop_sel = <DISPLAY_SOURCE_LCDC1>;
+//	dp_defaultmode = <10>;
+};
+
+&cdn_dp {
+	phys = <&tcphy0_dp>;
+	extcon = <&extcon_dp>;
+	status = "okay";
+};
+
+/*
+&dp_in_vopb {
+	status = "disabled";
+};
+*/
+/*
+&dp_in_vopl {
+	status = "okay";
+};
+*/
+&edp_rk_fb {
+	status = "disabled";
+};
+
+
+&hdmi {
+	pinctrl-names = "default";
+	pinctrl-0 = <&hdmi_i2c_xfer>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	#sound-dai-cells = <0>;
+	status = "okay";
+};
+/*
+&hdmi_in_vopl {
+	status = "disabled";
+};
+*/
+&hdmi_in_vopb {
+	status = "okay";
+};
+
+&hdmi_rk_fb {
+	status = "disabled";
+	rockchip,hdmi_video_source = <DISPLAY_SOURCE_LCDC1>;
+};
+
+
+&usbdrd3_0 {
+	status = "okay";
+};
+
+&usbdrd_dwc3_0 {
+	status = "okay";
+	dr_mode = "host";
+};
+
+&i2c1 {
+	status = "okay";
+
+	gsl3673: gsl3673@40 {
+		compatible = "GSL,GSL3673";
+		reg = <0x40>;
+		screen_max_x = <1536>;
+		screen_max_y = <2048>;
+		irq_gpio_number = <&gpio1 20 IRQ_TYPE_LEVEL_LOW>;
+		rst_gpio_number = <&gpio4 22 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&iep {
+	status = "okay";
+};
+
+&iep_mmu {
+	status = "okay";
+};
+
+&isp0_mmu {
+	status = "disabled";
+};
+
+&isp1_mmu {
+	status = "disabled";
+};
+
+&mipi_dphy_rx0 {
+	status = "disabled";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			mipi_in_ucam0: endpoint@1 {
+				reg = <1>;
+				//remote-endpoint = <&ucam_out0>;
+				data-lanes = <1 2>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			dphy_rx0_out: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&isp0_mipi_in>;
+			};
+		};
+	};
+};
+
+&mipi_dphy_tx1rx1 {
+	status = "disabled";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			mipi_in_ucam1: endpoint@1 {
+				reg = <1>;
+				/* Unlinked camera */
+				//remote-endpoint = <&ucam_out1>;
+				data-lanes = <1 2>;
+			};
+		};
+
+		port@1 {
+			reg = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			dphy_tx1rx1_out: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&isp1_mipi_in>;
+			};
+		};
+	};
+};
+
+&pcie_phy {
+	status = "okay";
+};
+
+&pcie0 {
+	/* I211 ethernet controller on the starterkit */
+	ep-gpios = <&gpio2 RK_PA4 GPIO_ACTIVE_HIGH>;
+	reset-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>; /* GPIO0_B3 */
+
+	num-lanes = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie_clkreqn &pcie0_gpios>;
+	status = "okay";
+};
+
+&rkisp1_0 {
+	status = "disabled";
+
+	port {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		isp0_mipi_in: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&dphy_rx0_out>;
+		};
+	};
+};
+
+&rkisp1_1 {
+	status = "disabled";
+
+	port {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		isp1_mipi_in: endpoint@0 {
+			reg = <0>;
+			remote-endpoint = <&dphy_tx1rx1_out>;
+		};
+	};
+};
+
+&route_dp {
+	status = "disabled";
+//	connect = <&vopb_out_dp>;
+};
+
+&route_edp {
+	status = "disabled";
+};
+
+&route_hdmi {
+	status = "okay";
+//	connect = <&vopl_out_hdmi>;
+};
+
+&saradc {
+	vref-supply = <&vccadc_ref>;
+};
+
+&vopb {
+	assigned-clocks = <&cru DCLK_VOP0_DIV>;
+	assigned-clock-parents = <&cru PLL_CPLL>;
+	status = "okay";
+	rockchip,grf = <&grf>;
+};
+
+&vopb_mmu {
+	status = "okay";
+};
+
+&vopl {
+	assigned-clocks = <&cru DCLK_VOP0_DIV>;
+	assigned-clock-parents = <&cru PLL_CPLL>;
+	status = "disabled";
+	rockchip,grf = <&grf>;
+};
+
+&vopl_mmu {
+	status = "disabled";
+};
+
+&pinctrl {
+	buttons {
+		pwrbtn: pwrbtn {
+			rockchip,pins = <0 5 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	dp {
+		dp_hotplug: dp_hotplug {
+			rockchip,pins =
+				<4 25 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	pcie0 {
+		pcie0_gpios: pcie0-gpios {
+			rockchip,pins =
+				<0 11 RK_FUNC_GPIO &pcfg_pull_up>,
+				<4 26 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	/* testati da attaccare */
+	debug {
+		debug_gpios: debug-gpios {
+			rockchip,pins =
+				<4 21 RK_FUNC_GPIO &pcfg_output_high>; /* solo per debug GPIO8 su Multimedia */
+		};
+	};
+
+
+	panel {
+		panel_gpios: panel-gpios {
+			rockchip,pins =
+				<1 1 RK_FUNC_GPIO &pcfg_output_high>,
+				<1 4 RK_FUNC_GPIO &pcfg_output_high>;
+		};
+	};
+
+/*
+	hdmiin {
+		hdmiin_gpios: hdmiin-gpios {
+			rockchip,pins =
+				<2 5 RK_FUNC_GPIO &pcfg_output_high>,
+				<2 6 RK_FUNC_GPIO &pcfg_output_high>,
+				<2 7 RK_FUNC_GPIO &pcfg_pull_none>,
+				<2 8 RK_FUNC_GPIO &pcfg_output_high>,
+				<2 9 RK_FUNC_GPIO &pcfg_output_high>,
+				<2 10 RK_FUNC_GPIO &pcfg_output_low>,
+				<2 12 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+*/
+};
+
+/* DON'T PUT ANYTHING BELOW HERE.  PUT IT ABOVE PINCTRL */
+/* DON'T PUT ANYTHING BELOW HERE.  PUT IT ABOVE PINCTRL */
+/* DON'T PUT ANYTHING BELOW HERE.  PUT IT ABOVE PINCTRL */

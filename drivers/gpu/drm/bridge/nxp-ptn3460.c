@@ -98,6 +98,25 @@ static int ptn3460_write_byte(struct ptn3460_bridge *ptn_bridge, char addr,
 	return 0;
 }
 
+static int ptn3460_write_edid(struct ptn3460_bridge *ptn_bridge, char addr,
+		char *edid_data)
+{
+	int ret, i;
+	char buf[128+2];
+
+	buf[0] = addr;
+	for (i=0; i<128; i++)
+		buf[i+1] = edid_data[i];
+
+	ret = i2c_master_send(ptn_bridge->client, buf, 128+1);
+	if (ret <= 0) {
+		DRM_ERROR("Failed to send i2c command, ret=%d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int ptn3460_select_edid(struct ptn3460_bridge *ptn_bridge)
 {
 	int ret;
@@ -123,6 +142,26 @@ static int ptn3460_select_edid(struct ptn3460_bridge *ptn_bridge)
 
 	return 0;
 }
+
+static const char edid_1280x800[] =
+{
+	0x00 , 0xFF , 0xFF , 0xFF , 0xFF , 0xFF , 0xFF , 0x00 ,
+ 	0x3B , 0x10 , 0x60 , 0x34 , 0x00 , 0x00 , 0x00 , 0x00 ,
+	0x26 , 0x15 , 0x01 , 0x03 , 0x68 , 0x1E , 0x16 , 0x78 ,
+	0xEE , 0x37 , 0x25 , 0x9E , 0x58 , 0x4A , 0x97 , 0x26 ,
+	0x19 , 0x50 , 0x54 , 0x00 , 0x00 , 0x00 , 0x01 , 0x01 ,
+	0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0x01 ,
+	0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0x01 , 0xBC , 0x1B ,
+	0x00 , 0xA0 , 0x50 , 0x20 , 0x17 , 0x30 , 0x28 , 0x50 ,
+	0x5B , 0x00 , 0x80 , 0xF0 , 0x10 , 0x00 , 0x00 , 0x1E ,
+	0x00 , 0x00 , 0x00 , 0xFD , 0x00 , 0x32 , 0x4C , 0x1E ,
+	0x3F , 0x08 , 0x00 , 0x0A , 0x20 , 0x20 , 0x20 , 0x20 ,
+	0x20 , 0x20 , 0x00 , 0x00 , 0x00 , 0xFC , 0x00 , 0x41 ,
+	0x49 , 0x4F , 0x20 , 0x50 , 0x43 , 0x0A , 0x20 , 0x20 ,
+	0x20 , 0x20 , 0x20 , 0x20 , 0x00 , 0x00 , 0x00 , 0xFF ,
+	0x00 , 0x4E , 0x58 , 0x50 , 0x20 , 0x50 , 0x54 , 0x4E ,
+	0x33 , 0x34 , 0x36 , 0x30 , 0x20 , 0x20 , 0x00 , 0x11
+};
 
 static void ptn3460_pre_enable(struct drm_bridge *bridge)
 {
@@ -153,6 +192,17 @@ static void ptn3460_pre_enable(struct drm_bridge *bridge)
 	ret = ptn3460_select_edid(ptn_bridge);
 	if (ret)
 		DRM_ERROR("Select EDID failed ret=%d\n", ret);
+
+	/*
+	* TODO
+	* Edid table should be obtained at run time from device tree panel
+	* timing parameters (but in drm_edid.c there isn't such a function).
+	* If this is not possibile, table has to be stored in /lib/firmware
+	* and loaded as described in Documentation/EDID/HOWTO.txt
+	*/
+	ptn3460_write_edid(ptn_bridge, 0, (char*)edid_1280x800);
+	ptn3460_write_byte(ptn_bridge, 0x81, 0x03);	// 24 bit VESA
+	ptn3460_write_byte(ptn_bridge, 0x82, 0x06);	// max voltage on LVDS
 
 	ptn_bridge->enabled = true;
 }
@@ -278,7 +328,7 @@ static int ptn3460_bridge_attach(struct drm_bridge *bridge)
 		return -ENODEV;
 	}
 
-	ptn_bridge->connector.polled = DRM_CONNECTOR_POLL_HPD;
+	ptn_bridge->connector.polled = DRM_CONNECTOR_POLL_CONNECT;
 	ret = drm_connector_init(bridge->dev, &ptn_bridge->connector,
 			&ptn3460_connector_funcs, DRM_MODE_CONNECTOR_LVDS);
 	if (ret) {

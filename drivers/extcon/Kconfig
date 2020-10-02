@@ -117,4 +117,11 @@ config EXTCON_USB_GPIO
 	  Say Y here to enable GPIO based USB cable detection extcon support.
 	  Used typically if GPIO is used for USB ID pin detection.
 
+config EXTCON_DP_GPIO
+	tristate "DP GPIO extcon support"
+	depends on GPIOLIB || COMPILE_TEST
+	help
+	  Say Y here to enable GPIO based DP cable detection extcon support.
+	  Used typically if GPIO is used for DP ID pin detection.
+
 endif

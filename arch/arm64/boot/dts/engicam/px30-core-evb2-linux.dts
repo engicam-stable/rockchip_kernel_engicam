@@ -185,7 +185,18 @@
 		regulator-max-microvolt = <5000000>;
 	};
 
-	wlreg_on: fixedregulator@100 {
+	btreg_on: fixedregulator-bt@100 {
+		compatible = "regulator-fixed";
+		regulator-name = "btreg_on";
+		gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	wlreg_on: fixedregulator-wl@100 {
 		compatible = "regulator-fixed";
 		regulator-name = "wlreg_on";
 		gpio = <&gpio1 RK_PC3 GPIO_ACTIVE_HIGH>;
@@ -194,6 +205,7 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
+		vin-supply = <&btreg_on>;
 	};
 };
 

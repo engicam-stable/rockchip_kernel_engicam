@@ -15,7 +15,6 @@
 
 
 
-
 / {
 	model = "Engicam PX30.Core c.touch 2.0";
 	compatible = "rockchip,px30-evb-ddr3-v10-linux", "rockchip,px30";
@@ -185,28 +184,29 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 	};
-#if 0
-	wireless-wlan {
-		compatible = "wlan-platdata";
-		wifi_chip_type = "AP6210";
-		WIFI,host_wake_irq = <&gpio0 RK_PB2 GPIO_ACTIVE_HIGH>;
-		status = "okay";
+
+	btreg_on: fixedregulator-bt@100 {
+		compatible = "regulator-fixed";
+		regulator-name = "btreg_on";
+		gpio = <&gpio1 RK_PC2 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
 	};
 
-	wireless-bluetooth {
-		compatible = "bluetooth-platdata";
-		clocks = <&rk809 1>;
-		clock-names = "ext_clock";
-		uart_rts_gpios = <&gpio1 RK_PC3 GPIO_ACTIVE_LOW>;
-		pinctrl-names = "default","rts_gpio";
-		pinctrl-0 = <&uart1_rts>;
-		pinctrl-1 = <&uart1_rts_gpio>;
-		BT,reset_gpio = <&gpio0 RK_PA1 GPIO_ACTIVE_HIGH>;
-		BT,wake_gpio = <&gpio2 RK_PB0 GPIO_ACTIVE_HIGH>;
-		BT,wake_host_irq = <&gpio0 RK_PB3 GPIO_ACTIVE_HIGH>;
-		status = "okay";
+	wlreg_on: fixedregulator-wl@100 {
+		compatible = "regulator-fixed";
+		regulator-name = "wlreg_on";
+		gpio = <&gpio1 RK_PC3 GPIO_ACTIVE_HIGH>;
+		startup-delay-us = <100>;
+		enable-active-high;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		vin-supply = <&btreg_on>;
 	};
-#endif
 };
 
 &display_subsystem {
@@ -666,8 +666,10 @@
 	ignore-pm-notify;
 	keep-power-in-suspend;
 	non-removable;
-	mmc-pwrseq = <&sdio_pwrseq>;
+	vmmc-suplly = <&wlreg_on>;
 	sd-uhs-sdr104;
+	no-1-8-v;
+	max-frequency = <25000000>;
 	status = "okay";
 };
 
